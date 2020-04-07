@@ -75,6 +75,11 @@ class Container implements ContainerInterface
         $this->services[ScopeRepository::class] = $scopeRepository;
 
         $database = Database::getInstance();
+        if ($oidcModuleConfiguration->hasValue('pg_search_path')) {
+            $database->write("set search_path to :search_path", [ 
+                'search_path' => $oidcModuleConfiguration->getValue('pg_search_path')
+            ]);
+        }
         $this->services[Database::class] = $database;
 
         $databaseMigration = new DatabaseMigration($database);
