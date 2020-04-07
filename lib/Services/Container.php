@@ -76,9 +76,8 @@ class Container implements ContainerInterface
 
         $database = Database::getInstance();
         if ($oidcModuleConfiguration->hasValue('pg_search_path')) {
-            $database->write("set search_path to :search_path", [ 
-                'search_path' => $oidcModuleConfiguration->getValue('pg_search_path')
-            ]);
+            $searchPath = $oidcModuleConfiguration->getValue('pg_search_path');
+            $database->write("set search_path to $searchPath");
         }
         $this->services[Database::class] = $database;
 
