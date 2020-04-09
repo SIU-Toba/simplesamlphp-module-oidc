@@ -60,7 +60,7 @@ class IdTokenResponseFactory
     public function build(): IdTokenResponse
     {
         $builder = (new Builder())
-            ->setIssuer($this->configurationService->getSimpleSAMLSelfURLHost())
+            ->setIssuer($this->configurationService->getSimpleSAMLBaseURL())
             ->setHeader('kid', 'oidc')
         ;
 

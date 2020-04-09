@@ -73,6 +73,10 @@ class ConfigurationService
         return HTTP::getSelfURLHost();
     }
 
+    public function getSimpleSAMLBaseURL()
+    {
+        return HTTP::getBaseURL();
+    }
 
     /**
      * @param string|null $path

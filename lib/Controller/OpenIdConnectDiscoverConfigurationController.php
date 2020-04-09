@@ -44,7 +44,7 @@ class OpenIdConnectDiscoverConfigurationController
         $scopes = $this->configurationService->getOpenIDScopes();
         $pkceIsEnabled = $this->configurationService->getOpenIDConnectConfiguration()->getBoolean('pkce');
 
-        $metadata['issuer'] = $this->configurationService->getSimpleSAMLSelfURLHost();
+        $metadata['issuer'] = $this->configurationService->getSimpleSAMLBaseURL();
         $metadata['authorization_endpoint'] = $this->configurationService->getOpenIdConnectModuleURL('authorize.php');
         $metadata['token_endpoint'] = $this->configurationService->getOpenIdConnectModuleURL('access_token.php');
         $metadata['userinfo_endpoint'] = $this->configurationService->getOpenIdConnectModuleURL('userinfo.php');
