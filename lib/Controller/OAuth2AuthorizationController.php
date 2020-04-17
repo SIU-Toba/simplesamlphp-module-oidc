@@ -58,8 +58,9 @@ class OAuth2AuthorizationController
      */
     public function __invoke(ServerRequest $request): \Psr\Http\Message\ResponseInterface
     {
-        $authSource = $this->getClientFromRequest($request)->getAuthSource();
-        $user = $this->authenticationService->getAuthenticateUser($authSource);
+        $client = $this->getClientFromRequest($request);
+        $authSource = $client->getAuthSource();
+        $user = $this->authenticationService->getAuthenticateUser($authSource, [ '__nombre' => $client->getName() ]);
 
         $authorizationRequest = $this->authorizationServer->validateAuthorizationRequest($request);
         $authorizationRequest->setUser($user);

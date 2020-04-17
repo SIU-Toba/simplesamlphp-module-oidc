@@ -47,10 +47,10 @@ class AuthenticationService
     /**
      * @throws Exception
      */
-    public function getAuthenticateUser(string $authSource): UserEntity
+    public function getAuthenticateUser(string $authSource, array $authRequestParams = []): UserEntity
     {
         $authSimple = $this->authSimpleFactory->build($authSource);
-        $authSimple->requireAuth();
+        $authSimple->requireAuth($authRequestParams);
 
         $claims = $authSimple->getAttributes();
         if (!\array_key_exists($this->userIdAttr, $claims)) {
