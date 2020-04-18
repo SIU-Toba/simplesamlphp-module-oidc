@@ -60,7 +60,12 @@ class OAuth2AuthorizationController
     {
         $client = $this->getClientFromRequest($request);
         $authSource = $client->getAuthSource();
-        $user = $this->authenticationService->getAuthenticateUser($authSource, [ '__nombre' => $client->getName() ]);
+        $user = $this->authenticationService->getAuthenticateUser($authSource, [ 
+            'RPMetadata' => [
+                'client_id' => $client->getIdentifier(),
+                '__nombre' => $client->getName(),
+            ]
+        ]);
 
         $authorizationRequest = $this->authorizationServer->validateAuthorizationRequest($request);
         $authorizationRequest->setUser($user);
