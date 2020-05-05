@@ -49,6 +49,15 @@ class ClientEntity implements ClientEntityInterface, MementoInterface
      */
     private $isEnabled;
 
+    /**
+     * @var string
+     */
+    private $usuariosAppUniqueId;
+
+    /**
+     * @var string
+     */
+    private $usuariosUrl;
 
     /**
      * Constructor
@@ -110,6 +119,8 @@ class ClientEntity implements ClientEntityInterface, MementoInterface
         $client->redirectUri = json_decode($state['redirect_uri'], true);
         $client->scopes = json_decode($state['scopes'], true);
         $client->isEnabled = (bool) $state['is_enabled'];
+        $client->usuariosAppUniqueId = $state['app_unique_id'] ?? '';
+        $client->usuariosUrl = $state['url'] ?? '';
 
         return $client;
     }
@@ -171,6 +182,21 @@ class ClientEntity implements ClientEntityInterface, MementoInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getUsuariosAppUniqueId(): string
+    {
+        return $this->usuariosAppUniqueId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUsuariosUrl(): string
+    {
+        return $this->usuariosUrl;
+    }
 
     /**
      * @return string

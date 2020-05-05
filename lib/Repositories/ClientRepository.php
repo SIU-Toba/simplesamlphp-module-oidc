@@ -56,12 +56,24 @@ class ClientRepository extends AbstractDatabaseRepository implements ClientRepos
 
     /**
      * @param string $clientIdentifier
+     * @param bool $joinAppUsuarios este campo es exclusivo de arai-usuarios. Si en algún momento
+     * se soluciona este issue https://github.com/rediris-es/simplesamlphp-module-oidc/issues/38
+     * se podría borrar y encapsular todo en el authproc de simplesaml
      * @return \SimpleSAML\Modules\OpenIDConnect\Entity\ClientEntity|null
      */
-    public function findById($clientIdentifier): ?ClientEntity
+    public function findById($clientIdentifier, bool $joinAppUsuarios = false): ?ClientEntity
     {
+        if ($joinAppUsuarios) {
+            $query = "SELECT oidc_client.*, conector_oidc.app_unique_id, aplicaciones.url
+                FROM conector_oidc INNER JOIN oidc_client ON conector_oidc.id_oidc_client = oidc_client.id 
+                INNER JOIN aplicaciones ON conector_oidc.app_unique_id = aplicaciones.app_unique_id
+                WHERE id = :id";
+        } else {
+            $query = "SELECT * FROM {$this->getTableName()} WHERE id = :id";
+        }
+
         $stmt = $this->database->read(
-            "SELECT * FROM {$this->getTableName()} WHERE id = :id",
+            $query,
             [
                 'id' => $clientIdentifier,
             ]

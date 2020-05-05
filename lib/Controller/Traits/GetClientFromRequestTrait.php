@@ -35,7 +35,7 @@ trait GetClientFromRequestTrait
      *
      * @return \SimpleSAML\Modules\OpenIDConnect\Entity\ClientEntity
      */
-    protected function getClientFromRequest(ServerRequest $request): ClientEntity
+    protected function getClientFromRequest(ServerRequest $request, bool $joinAppUsuarios = false): ClientEntity
     {
         $params = $request->getQueryParams();
         $clientId = $params['client_id'] ?? null;
@@ -44,7 +44,7 @@ trait GetClientFromRequestTrait
             throw new BadRequest('Client id is missing.');
         }
 
-        $client = $this->clientRepository->findById($clientId);
+        $client = $this->clientRepository->findById($clientId, $joinAppUsuarios);
         if (!$client) {
             throw new NotFound('Client not found.');
         }

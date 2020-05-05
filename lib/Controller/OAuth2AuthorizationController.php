@@ -20,6 +20,11 @@ use SimpleSAML\Modules\OpenIDConnect\Repositories\ClientRepository;
 use SimpleSAML\Modules\OpenIDConnect\Services\AuthenticationService;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
+use SIU\AraiUsuarios\IDP\Factory;
+use SimpleSAML\Auth;
+use SimpleSAML\Module;
+use SimpleSAML\Utils;
+use SimpleSAML\Session;
 
 class OAuth2AuthorizationController
 {
@@ -58,19 +63,44 @@ class OAuth2AuthorizationController
      */
     public function __invoke(ServerRequest $request): \Psr\Http\Message\ResponseInterface
     {
-        $client = $this->getClientFromRequest($request);
+        $client = $this->getClientFromRequest($request, true);
         $authSource = $client->getAuthSource();
         $user = $this->authenticationService->getAuthenticateUser($authSource, [ 
             'RPMetadata' => [
                 'client_id' => $client->getIdentifier(),
+                'app_unique_id' => $client->getUsuariosAppUniqueId(),
                 '__nombre' => $client->getName(),
             ]
         ]);
+
+        $usuariosManager = Factory::getUsuariosManager();
+        list($permiteAcceso, $msg) = $usuariosManager->verificarAcceso($user->getIdentifier(), $client->getUsuariosAppUniqueId());
+
+        if (! $permiteAcceso ) {
+            $contexto = [
+                'usuario' => $usuario,
+                'aplicacion' => $appId,
+                'mensaje' => $msg
+            ];
+
+            Factory::getIdpLogger()->warning('OIDC Acceso denegado', $contexto);
+            $this->redirect403($client->getUsuariosUrl());
+        } 
 
         $authorizationRequest = $this->authorizationServer->validateAuthorizationRequest($request);
         $authorizationRequest->setUser($user);
         $authorizationRequest->setAuthorizationApproved(true);
 
         return $this->authorizationServer->completeAuthorizationRequest($authorizationRequest, new Response());
+    }
+
+    protected function redirect403($returnTo) 
+    {
+        $state = Session::getSessionFromRequest()->getAuthState('usuarios_arai');
+        $state['OIDCReturnTo'] = (empty($returnTo)) ? Utils\HTTP::getSelfURL() : $returnTo;
+        // Save state and redirect to 403 page
+        $id = Auth\State::saveState($state, 'arai:runChecks');
+        $url = Module::getModuleURL('arai/authorize_403.php');
+        Utils\HTTP::redirectTrustedURL($url, ['StateId' => $id]);
     }
 }
